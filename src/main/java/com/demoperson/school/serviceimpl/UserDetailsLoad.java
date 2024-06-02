@@ -19,7 +19,7 @@ import com.demoperson.school.model.Users;
 import com.demoperson.school.respository.RoleRes;
 import com.demoperson.school.respository.UsersRes;
 
-@Service
+@Service 
 public class UserDetailsLoad implements UserDetailsService {
 
     @Autowired

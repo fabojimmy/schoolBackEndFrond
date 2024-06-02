@@ -18,7 +18,7 @@ import com.demoperson.school.filters.JwtRequestFilter;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity 
 public class SecuritySchool {
 
     @Autowired
@@ -30,18 +30,18 @@ public class SecuritySchool {
 		return new BCryptPasswordEncoder();
 	}
     
+    @SuppressWarnings("removal")
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
 
-        return httpSecurity.csrf().disable()
-                          .authorizeHttpRequests().requestMatchers("/users/adduser","/auth/login","/users/roleUser").permitAll().and()
-                          .authorizeHttpRequests().requestMatchers("/niveau/**","/users/**").authenticated().and()
-                          .sessionManagement()
-                          .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                          .and()
-                          .addFilterBefore(jwtRequestFilter,UsernamePasswordAuthenticationFilter.class)
-                          .build();
-    }
+        return httpSecurity.csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(requests -> requests.requestMatchers("/users/adduser", "/auth/login", "/users/roleUser", "users/get", "users/**", "niveau/add", "niveau/**").permitAll())
+                .authorizeHttpRequests(requests -> requests.requestMatchers("filiere/**", "specialite/**").permitAll())
+                .sessionManagement(management -> management
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    } 
 
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{

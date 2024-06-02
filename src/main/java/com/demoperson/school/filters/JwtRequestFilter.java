@@ -34,11 +34,11 @@ public class JwtRequestFilter extends OncePerRequestFilter{
         String authHeader=request.getHeader("Authorization");
        
 
-        if(request.getServletPath().matches("/auth/login|/user/forgotPassword|/user/signup"))
-        {
-                filterChain.doFilter(request, response);
-        }
-        else{
+        // if(request.getServletPath().matches("/auth/login|/user/forgotPassword|/user/signup|users/getalluser"))
+        // {
+        //         filterChain.doFilter(request, response);
+        // }
+        // else{
 
             if(authHeader!=null && authHeader.startsWith("Bearer ")) {
                 token=authHeader.substring(7);
@@ -64,6 +64,6 @@ public class JwtRequestFilter extends OncePerRequestFilter{
 
 
       
-    }
+    // }
 
 }

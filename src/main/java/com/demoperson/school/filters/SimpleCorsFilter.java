@@ -20,26 +20,40 @@ import jakarta.servlet.http.HttpServletResponse;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class SimpleCorsFilter implements Filter{
 
+    // @Value("${app.client.url}")
+
+    // private static final List<String>ALLOWED_ORIGINS=Arrays.asList("http://localhost:8080/");
+
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
       HttpServletResponse response=(HttpServletResponse) res;
         HttpServletRequest request=(HttpServletRequest) req;
+
+        
         Map<String ,String>map=new HashMap<String ,String>();
         String originHeader=request.getHeader("origin");
-        response.setHeader("Access-Control-Allow-Origin", originHeader);
-        response.setHeader("Access-Control-Allow-Methods", "POST, GET,PUT,PATCH,DELETE,OPTIONS");
-        response.setHeader("Access-Control-Max-Age", "3600");
-        response.setHeader("Access-Control-Allow-Headers", "*");
-        
-        if("OPTIONS".equalsIgnoreCase(request.getMethod()))
-        {
-            response.setStatus(HttpServletResponse.SC_OK);
-        }
-        else
-        {
-            chain.doFilter(req, res);
-        }
+        System.out.println(originHeader);
+        // if(ALLOWED_ORIGINS.contains(originHeader)){
+
+            response.setHeader("Access-Control-Allow-Origin", originHeader);
+            response.setHeader("Access-Control-Allow-Methods", "POST, GET,PUT,PATCH,DELETE,OPTIONS");
+            response.setHeader("Access-Control-Max-Age", "3600");
+            response.setHeader("Access-Control-Allow-Headers", "*");
+            
+            if("OPTIONS".equalsIgnoreCase(request.getMethod()))
+            {
+                response.setStatus(HttpServletResponse.SC_OK);
+            }
+            else
+            {
+                chain.doFilter(req, res);
+            }
+        // }
+        // else{
+
+        //     response.sendError(HttpServletResponse.SC_FORBIDDEN, "Orign not allowed");
+        // }
         // TODO Auto-generated method stub
         // throw new UnsupportedOperationException("Unimplemented method 'doFilter'");
     }

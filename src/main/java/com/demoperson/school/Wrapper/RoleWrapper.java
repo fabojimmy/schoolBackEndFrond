@@ -14,6 +14,7 @@ import lombok.experimental.SuperBuilder;
 public class RoleWrapper {
     
     public Long id;
-
     public String libelle;
+
+    
 }

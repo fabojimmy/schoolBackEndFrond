@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.demoperson.school.Wrapper.RoleWrapper;
+import com.demoperson.school.Wrapper.UsersWrapper;
 import com.demoperson.school.model.Role;
 import com.demoperson.school.model.Users;
 import com.demoperson.school.respository.RoleRes;
@@ -79,7 +80,7 @@ public class UsersServiceImpl implements UsersService  {
             
             
             return new ResponseEntity<>("{\"message\":\""+"informations bien enregistré"+"\"}",HttpStatus.OK);
-        } catch (ParseException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -100,12 +101,12 @@ public class UsersServiceImpl implements UsersService  {
 
     @SuppressWarnings("unchecked")
     @Override
-    public ResponseEntity<List<Role>> roleUser() {
+    public ResponseEntity<List<RoleWrapper>> roleUser() {
         // TODO Auto-generated method stub
         // role
         try{
 
-            return new ResponseEntity<List<Role>>(roleRes.findAll(),HttpStatus.OK);
+            return new ResponseEntity<List<RoleWrapper>>(roleRes.getAllRol(),HttpStatus.OK);
         }catch(Exception e)
         {
             e.printStackTrace();
@@ -113,6 +114,131 @@ public class UsersServiceImpl implements UsersService  {
         return null;
 
         // return new ResponseEntity<List<?>>(null,null);
+    }
+
+
+    @Override
+    public List<UsersWrapper> getalluser() {
+        // TODO Auto-generated method stub
+       try {
+         return usersRes.usersAll();
+       } catch (Exception e) {
+        e.printStackTrace();
+        return null;
+       }
+
+    }
+
+
+    @SuppressWarnings({ "null", "unused" })
+    @Override
+    public ResponseEntity<String> updateUser(Map<String, String> reqMap) {
+
+        Date date;
+        try {
+
+
+            UsersWrapper usersO=usersRes.findUsersId(Long.parseLong(reqMap.get("id")));
+            date = new SimpleDateFormat("dd/MM/yyyy").parse(String.valueOf(this.formatDate(reqMap.get("dateNais"))));
+
+            // Users users=new Users();
+            if(!Objects.isNull(usersO)){
+
+                usersO.setMatricule(reqMap.get("matricule"));
+                usersO.setLastname(reqMap.get("lastname"));
+                usersO.setFirstname(reqMap.get("firstname"));
+                usersO.setDateNais(date);
+
+                Users userObjEm=usersRes.findUsersEmail(reqMap.get("email"));
+                Users userObjnum=usersRes.findUsersnumber(reqMap.get("number"));
+                
+                if(!Objects.isNull(userObjEm) && usersO.getId()==userObjEm.getId())
+                {
+                    usersO.setEmail(reqMap.get("email"));
+                }
+                else
+                   if(!Objects.isNull(userObjEm) && usersO.getId()==userObjEm.getId()){
+                        return new ResponseEntity<>("{\"message\":\""+"Email existe déjà"+"\"}",HttpStatus.NOT_ACCEPTABLE);
+
+
+                    
+                }
+                if(!Objects.isNull(userObjnum) && usersO.getId()==userObjnum.getId())
+                {
+                    usersO.setNumber(reqMap.get("number"));
+                }
+                else if(Objects.isNull(userObjnum) ){
+                    return new ResponseEntity<>("{\"message\":\""+"Ce numéro excite déjà"+"\"}",HttpStatus.NOT_ACCEPTABLE);
+
+                }
+
+                Optional<Role> role=roleRes.findById(Long.parseLong(reqMap.get("role_id")));
+            if(Objects.isNull(role)){
+
+                return new ResponseEntity<>("Ce role n'excite pas",HttpStatus.NOT_ACCEPTABLE);
+            }
+            usersO.setRole_id(role.get().getId());
+            usersO.setPassword(passwordEncoder.encode(reqMap.get("password")));
+
+            Users usersSave=convertUser(usersO);
+                usersRes.save(usersSave);
+                return new ResponseEntity<>("{\"message\":\""+"informations bien modifié"+"\"}",HttpStatus.OK);
+
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateUser'");
+    }
+
+
+    @SuppressWarnings("null")
+    @Override
+    public ResponseEntity<String> deleteUser(Long id) {
+        try {
+            // TODO Auto-generated method stub
+            usersRes.deleteById(id);
+            return new ResponseEntity<>("{\"message\":\""+"informations bien supprimé"+"\"}",HttpStatus.OK);
+
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        throw new UnsupportedOperationException("Unimplemented method 'deleteUser'");
+    }
+
+
+    @Override
+    public ResponseEntity<UsersWrapper> getUserId(Long id) {
+       try {
+         // TODO Auto-generated method stub
+         return new ResponseEntity<UsersWrapper>(usersRes.findUsersId(id),HttpStatus.OK);
+       } catch (Exception e) {
+        // TODO: handle exception
+       }
+        throw new UnsupportedOperationException("Unimplemented method 'getUserId'");
+    }
+
+
+    private Users convertUser(UsersWrapper usersWrapper){
+
+        Users users =new Users();
+        users.setId(usersWrapper.getId());
+        users.setFirstname(usersWrapper.getFirstname());
+        users.setLastname(usersWrapper.getLastname());
+        users.setEmail(usersWrapper.getEmail());
+        users.setNumber(usersWrapper.getNumber());
+        users.setPassword(usersWrapper.getPassword());
+        users.setDateNais(usersWrapper.getDateNais());
+        users.setMatricule(usersWrapper.getMatricule());
+
+        Optional<Role> role=roleRes.findById(usersWrapper.getRole_id());
+
+        users.setRole(role.get());
+
+        return users;
+
     }
    
     

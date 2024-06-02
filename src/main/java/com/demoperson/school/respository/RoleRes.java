@@ -18,6 +18,8 @@ public interface RoleRes extends JpaRepository<Role,Long> {
 
     @Query("SELECT r FROM role WHERE r.libelle=:libelle")
     public Role findByLibelle(@Param("libelle")String libelle);
+    
+    public List<RoleWrapper> getAllRol();
 
     
 }
